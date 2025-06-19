@@ -5,3 +5,7 @@ mydb/
 .env
 # 忽略輸出圖檔
 graph/
+# 忽略 summaries 檔案
+summaries/
+# 忽略 doalog  檔案
+dialog/
