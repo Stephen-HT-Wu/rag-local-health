@@ -3,3 +3,5 @@ rag-env/
 mydb/
 # 忽略環境變數檔案  
 .env
+# 忽略輸出圖檔
+graph/
