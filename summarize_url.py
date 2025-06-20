@@ -41,7 +41,18 @@ def generate_article_summary(text):
 
 def generate_persona_summary(text, persona):
     # 針對不同角色生成摘要
-    prompt = f"請針對以下文章內容，串連出對於{persona}這個群體一到多個容易閱讀理解、掌握重點、採取行動的摘要。並且保留適當的 link\n{text[:3000]}"
+    prompt = f"請針對以下文章內容，整理出吸引{persona}閱讀的文章。避免提到年齡、角色。並且保留適當的 link\n{text[:3000]}"
+    client = OpenAI()
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": prompt}]
+    )
+    return response.choices[0].message.content
+
+def generate_dialog(text):
+    # 生成 podcast 風格的對話稿
+    prompt = f"請將以下文章內容轉換成 podcast 對話稿。有男女兩個主持人，男的風趣幽默，女的可愛俏皮\n{text[:3000]}"
+
     client = OpenAI()
     response = client.chat.completions.create(
         model="gpt-4o",
@@ -92,7 +103,7 @@ def generate_whole_summary(summaries):
     # 將所有摘要及連結合併成一個大文本
     combined_text = "\n\n".join([f"URL: {summary['url']}\n摘要: {summary['summary']}" for summary in summaries])
     
-    prompt = f"請針對以下內容 '{combined_text[:3000]}' 寫出一個整體的總結，並在文章中插入適當的連結控制在 ，控制在{summary_words}字內：\n"
+    prompt = f"請針對以下內容 '{combined_text[:3000]}' 寫出一個整體的總結，並在文章中插入適當的連結\n"
 
     client = OpenAI()
     response = client.chat.completions.create(
@@ -128,7 +139,9 @@ if __name__ == "__main__":
 
     # transplate summaries to different personas
     # persona_list = ["一般用戶", "年輕女性", "年輕男性", "中年女性", "中年男性", "高齡女性", "高齡男性"]
-    persona_list = [ "年輕女性", "年輕男性", "高齡女性", "高齡男性"]
+    # persona_list = [ "年輕女性", "年輕男性", "高齡女性", "高齡男性"]
+    persona_list = [ "喜愛冒險的年輕女大學生", "喜愛冒險的年輕男大學生", "和閨蜜一起出遊的成熟女性", "帶小孩出國的成熟男性"]
+
     for persona in persona_list:
         print(f"🔊 正在為 {persona} 生成個人化摘要...")
         persona_summary = generate_persona_summary(overall_summary, persona)
@@ -138,5 +151,15 @@ if __name__ == "__main__":
             f.write(f"角色: {persona}\n摘要: {persona_summary}\n")
         print(f"✅ 已將 {persona} 的摘要儲存到 {filename}")
     print("✅ 摘要生成完成！")
+
+    # 生成 podcast 風格，對話稿
+    dialog = generate_dialog(overall_summary)
+    # 儲存對話稿為文字檔
+    dialog_filename = "summaries/dialog.txt"
+    with open(dialog_filename, "w", encoding="utf-8") as f:
+        f.write(dialog)
+    print(f"✅ 已將對話稿儲存為 {dialog_filename}")
+
+
   
   
