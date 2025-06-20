@@ -51,7 +51,7 @@ def generate_persona_summary(text, persona):
 
 def generate_dialog(text):
     # 生成 podcast 風格的對話稿
-    prompt = f"請將以下文章內容轉換成 podcast 對話稿。有男女兩個主持人，男的風趣幽默，女的可愛俏皮\n{text[:3000]}"
+    prompt = f"請將以下文章內容轉換成適合tts的文字檔。有男女兩個主持人，男的叫小食，性格風趣幽默。女的叫小尚，性格可愛俏皮。不要有超連結\n{text[:3000]}"
 
     client = OpenAI()
     response = client.chat.completions.create(
@@ -155,7 +155,7 @@ if __name__ == "__main__":
     # 生成 podcast 風格，對話稿
     dialog = generate_dialog(overall_summary)
     # 儲存對話稿為文字檔
-    dialog_filename = "summaries/dialog.txt"
+    dialog_filename = "dialog/dialog.txt"
     with open(dialog_filename, "w", encoding="utf-8") as f:
         f.write(dialog)
     print(f"✅ 已將對話稿儲存為 {dialog_filename}")

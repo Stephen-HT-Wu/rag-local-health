@@ -9,3 +9,5 @@ graph/
 summaries/
 # 忽略 doalog  檔案
 dialog/
+# 忽略音訊檔案
+audio_parts
