@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import os
 load_dotenv()
 
-summary_words = 100  # 摘要字數限制   
+summary_words = 300  # 摘要字數限制   
 article_limit = 5  # 每次處理的文章數量限制
 
 def get_links_from_page(url):

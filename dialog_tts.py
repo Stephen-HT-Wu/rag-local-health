@@ -7,25 +7,18 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-client = client = texttospeech.TextToSpeechClient()
+def natural_sort_key(s):
+    return [int(text) if text.isdigit() else text for text in re.split(r'(\d+)', s)]
+
+
+client = texttospeech.TextToSpeechClient()
 
 # 設定要查詢的語言代碼為台灣華語
-language_code = "zh-TW" # 或者 "cmn-TW"
-
+language_code="cmn-CN"
+# language_code="en-US"
 response = client.list_voices(language_code=language_code)
 
-# print(f"所有支援 {language_code} 的語音：")
-# print("---")
-# for voice in response.voices:
-#     print(f"Name: {voice.name}")
-#     print(f"  Gender: {texttospeech.SsmlVoiceGender(voice.ssml_gender).name}")
-#     print(f"  Natural Sample Rate (Hz): {voice.natural_sample_rate_hertz}")
-#     print(f"  Supported Languages: {voice.language_codes}")
-#     print("---")
-
- 
-#read dialogue from a file dialog/dialog.txt
-# or define it directly in the code
+# 讀取對話內容
 dialogue = []
 with open("dialog/dialog.txt", "r", encoding="utf-8") as f:
     for line in f:
@@ -44,8 +37,11 @@ for i, (speaker, text) in enumerate(dialogue):
 
 # 角色對應 Google Cloud TTS voice name
 voice_map = {
-    "小尚": "cmn-CN-Chirp3-HD-Erinome",  # 女聲
+    "小尚": "cmn-CN-Chirp3-HD-Leda",  # 女聲
     "小食": "cmn-CN-Chirp3-HD-Zubenelgenubi"   # 男聲
+    # "小尚": "en-US-Studio-O",  # 女聲
+    # "小食": "en-US-Studio-Q"   # 男聲
+    
 }
 
 os.makedirs("audio_parts", exist_ok=True)
@@ -55,11 +51,12 @@ for i, (speaker, text) in enumerate(dialogue):
     voice_name = voice_map[speaker]
     synthesis_input = texttospeech.SynthesisInput(text=text)
     voice = texttospeech.VoiceSelectionParams(
-        language_code="cmn-CN",
+        language_code=language_code,
         name=voice_name
     )
     audio_config = texttospeech.AudioConfig(
-        audio_encoding=texttospeech.AudioEncoding.MP3
+        audio_encoding=texttospeech.AudioEncoding.MP3,
+        speaking_rate=1.15  # 語速
     )
     response = client.synthesize_speech(
         input=synthesis_input,
@@ -70,15 +67,24 @@ for i, (speaker, text) in enumerate(dialogue):
     with open(filename, "wb") as out:
         out.write(response.audio_content)
     audio_files.append(filename)
+    print(f"已生成語音檔: {filename}")
 
 print("已完成語音生成")
+
+
+
 audio_files = sorted([f for f in os.listdir("audio_parts") if f.endswith(".mp3")])
+audio_files = sorted(
+    [f for f in os.listdir("audio_parts") if f.endswith(".mp3")],
+    key=natural_sort_key
+)
+
 with open("audio_parts/filelist.txt", "w", encoding="utf-8") as f:
     for filename in audio_files:
         f.write(f"file '{filename}'\n")
 
 # 呼叫 ffmpeg 合併
-os.system("ffmpeg -f concat -safe 0 -i audio_parts/filelist.txt -c copy merged_dialogue.mp3")
-print("所有語音檔已合併至 merged_dialogue.mp3")
+os.system("ffmpeg -f concat -safe 0 -i audio_parts/filelist.txt -y -c copy merged_dialogue/merged_dialogue_speaking115.mp3")
+print("所有語音檔已合併至 merged_dialogue/merged_dialogue.mp3")
 
 
