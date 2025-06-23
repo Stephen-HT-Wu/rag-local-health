@@ -44,8 +44,8 @@ for i, (speaker, text) in enumerate(dialogue):
 
 # 角色對應 Google Cloud TTS voice name
 voice_map = {
-    "小尚": "cmn-TW-Wavenet-A",  # 女聲
-    "小食": "cmn-TW-Wavenet-B"   # 男聲
+    "小尚": "cmn-CN-Chirp3-HD-Erinome",  # 女聲
+    "小食": "cmn-CN-Chirp3-HD-Zubenelgenubi"   # 男聲
 }
 
 os.makedirs("audio_parts", exist_ok=True)
@@ -55,7 +55,7 @@ for i, (speaker, text) in enumerate(dialogue):
     voice_name = voice_map[speaker]
     synthesis_input = texttospeech.SynthesisInput(text=text)
     voice = texttospeech.VoiceSelectionParams(
-        language_code="zh-TW",
+        language_code="cmn-CN",
         name=voice_name
     )
     audio_config = texttospeech.AudioConfig(
